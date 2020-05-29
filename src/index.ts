@@ -1,7 +1,8 @@
 import * as mongoose from 'mongoose';
 import * as streamWorker from 'stream-worker';
+import * as _ from 'lodash'
 
-function getChildrenTree ( schema, options? ) {
+function getChildrenTree(schema, options?) {
     var pathSeparator = options && options.pathSeparator || '#'
         , wrapChildrenTree = options && options.wrapChildrenTree
         , onDelete = options && options.onDelete || 'DELETE' //'REPARENT'
@@ -68,7 +69,7 @@ function getChildrenTree ( schema, options? ) {
                             var newPath = self.path + doc.path.substr(previousPath.length);
                             self.collection.update({ _id: doc._id }, { $set: { path: newPath } }, done);
                         },
-                        next);
+                            next);
                     });
                 }
                 else {
@@ -109,25 +110,25 @@ function getChildrenTree ( schema, options? ) {
 
                 streamWorker(cursor.stream(), numWorkers, function streamOnData(doc, done) {
 
-                        self.collection.update({ _id: doc._id }, { $set: { parent: newParent } }, done);
+                    self.collection.update({ _id: doc._id }, { $set: { parent: newParent } }, done);
                 },
-                function streamOnClose(err) {
+                    function streamOnClose(err) {
 
-                    if (err) {
-                        return next(err);
-                    }
+                        if (err) {
+                            return next(err);
+                        }
 
-                    self.collection.find({ path: { $regex: previousParent + pathSeparatorRegex} }, function (err, cursor) {
+                        self.collection.find({ path: { $regex: previousParent + pathSeparatorRegex } }, function (err, cursor) {
 
-                        var subStream = cursor.stream();
-                        streamWorker(subStream, numWorkers, function subStreamOnData(doc, done) {
+                            var subStream = cursor.stream();
+                            streamWorker(subStream, numWorkers, function subStreamOnData(doc, done) {
 
-                            var newPath = doc.path.replace(previousParent + pathSeparator, '');
-                            self.collection.update({ _id: doc._id }, { $set: { path: newPath } }, done);
-                        },
-                        next);
+                                var newPath = doc.path.replace(previousParent + pathSeparator, '');
+                                self.collection.update({ _id: doc._id }, { $set: { path: newPath } }, done);
+                            },
+                                next);
+                        });
                     });
-                });
             });
         }
     });
@@ -186,13 +187,13 @@ function getChildrenTree ( schema, options? ) {
         recursive = recursive || false;
 
         if (recursive) {
-            if(filters['$query']){
-                filters['$query']['path'] = {$regex: '^' + this.path + pathSeparatorRegex};
+            if (filters['$query']) {
+                filters['$query']['path'] = { $regex: '^' + this.path + pathSeparatorRegex };
             } else {
-                filters['path'] = {$regex: '^' + this.path + pathSeparatorRegex};
+                filters['path'] = { $regex: '^' + this.path + pathSeparatorRegex };
             }
         } else {
-            if(filters['$query']){
+            if (filters['$query']) {
                 filters['$query']['parent'] = this._id;
             } else {
                 filters['parent'] = this._id;
@@ -248,10 +249,10 @@ function getChildrenTree ( schema, options? ) {
             ids.pop();
         }
 
-        if(filters['$query']){
-            filters['$query']['_id'] = {$in: ids};
+        if (filters['$query']) {
+            filters['$query']['_id'] = { $in: ids };
         } else {
-            filters['_id'] = {$in: ids};
+            filters['_id'] = { $in: ids };
         }
 
         return this.model(this.constructor.modelName).find(filters, fields, options, next);
@@ -274,29 +275,27 @@ function getChildrenTree ( schema, options? ) {
      */
     schema.statics.getChildrenTree = function getChildrenTree(root, args, next) {
 
-        if ("function" === typeof(root))
-        {
+        if ("function" === typeof (root)) {
             next = root;
             root = null;
             args = {};
         }
-        else if ("function" === typeof(args)) {
+        else if ("function" === typeof (args)) {
             next = args;
 
             if ("model" in root) {
                 args = {};
             }
-            else
-            {
+            else {
                 args = root;
                 root = null
             }
         }
 
-        var filters = args.filters || {};
-        var fields = args.fields || null;
-        var options = args.options || {};
-        var minLevel = args.minLevel || 1;
+        var filters = _.has(args, 'filters') ? args.filters : {};
+        var fields = _.has(args, 'fields') ? args.fields : null;
+        var options = _.has(args, 'options') ? args.options : {};
+        var minLevel = _.has(args, 'minLevel') ? args.minLevel : 1;
         var recursive = args.recursive != undefined ? args.recursive : true;
         var allowEmptyChildren = args.allowEmptyChildren != undefined ? args.allowEmptyChildren : true;
 
@@ -405,7 +404,7 @@ function getChildrenTree ( schema, options? ) {
     };
 
 
-    schema.methods.getChildrenTree = function(args, next) {
+    schema.methods.getChildrenTree = function (args, next) {
 
         this.constructor.getChildrenTree(this, args, next)
     };
