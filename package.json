@@ -1,0 +1,38 @@
+{
+  "name": "sm-mongoose-tree",
+  "version": "1.0.0",
+  "description": "Mongoose data tree plugin",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "clean": "rimraf dist",
+    "compile": "tsc --skipLibCheck && tstei",
+    "compile:watch": "tsc --skipLibCheck --watch",
+    "prepublishOnly": "npm run clean && npm run compile"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/smprime/sm-mongoose-tree.git"
+  },
+  "keywords": [
+    "mongoose",
+    "data",
+    "tree",
+    "plugin"
+  ],
+  "author": "Jason Mullings",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/smprime/sm-mongoose-tree/issues"
+  },
+  "homepage": "https://github.com/smprime/sm-mongoose-tree#readme",
+  "devDependencies": {
+    "rimraf": "^3.0.2",
+    "typescript": "^3.9.3",
+    "typescript-transform-export-interop": "^1.0.2"
+  },
+  "dependencies": {
+    "mongoose": "^5.9.16",
+    "stream-worker": "^2.0.1"
+  }
+}
